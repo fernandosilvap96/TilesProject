@@ -1,0 +1,160 @@
+<template>
+  <div class='page'>
+    <div class='content'>
+      <div class='header'>
+        <img src='~/assets/logo.png' alt=''>
+        <a href='/'>Home</a>
+        <a href='/home'>How it works</a>
+        <a href='/home'>FAQ</a>
+        <a href='/home'>Contacts</a>
+      </div>
+      <div class='about-block'>
+        <div class='about-block__block'>
+          <div class='block-elements'>
+            <h1 class='element-title'>TILES <br>#{{$route.params.id}}</h1>
+            <p class='element-des'>Participate in the auction for each tile. The buyer gets the opportunity to leave a message.</p>
+            <p class='element-des-2'>The tiles can be resold.</p>
+          </div>
+        </div>
+        <div class='about-block__description'>
+          <div class='des-buttons'>
+            <div class='price'>
+              <p class='block-price'>0.1</p>
+              <p class='block-price-dollar'>$416</p>
+            </div>
+            <nuxt-link to='#' class='buy-now'>Buy now!</nuxt-link>
+            <nuxt-link to='#' class='place-bid'>Place a bid</nuxt-link>
+          </div>
+          <div class='history'>
+            <h1 class='history-title'>HISTORY</h1>
+            <div class='history-item'>
+
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</template>
+
+<script>
+export default {
+  name: 'nftAbout'
+}
+</script>
+
+<style lang='scss'>
+.page{
+  min-height: 100vh;
+  height: 100%;
+  background: rgb(9,9,126);
+  background:linear-gradient(38deg, #09097e 24%, #af00ff 100%);
+  position: relative;
+  .content {
+    max-width: 1200px;
+    margin: auto;
+    padding: 0 16px;
+    .header {
+      padding: 24px 0;
+      display: flex;
+      gap: 20px;
+      align-items: center;
+    }
+    .about-block {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 120px;
+      margin-top: 60px;
+      &__block {
+        min-height: 460px;
+        border-radius: 30px;
+        border: 2px dashed rgba(255,255,255, 0.3);
+        padding: 48px;
+        background-image: url("~/assets/man.png");
+        background-repeat: no-repeat;
+        background-position: 50px 50px;
+        background-size: 200px;
+        .block-elements{
+          .element-title {
+            font-size: 75px;
+            line-height: 66px;
+            color: #00fc7b;
+            font-weight: 400;
+            font-family: 'Bungee', cursive;
+            margin-top: 200px;
+            margin-bottom: 40px;
+          }
+          .element-des {
+            font-size: 14px;
+            line-height: 24px;
+            margin-bottom: 18px;
+          }
+          .element-des-2 {
+            font-size: 14px;
+            line-height: 24px;
+            color: #108d7f;
+          }
+        }
+      }
+      &__description{
+        .des-buttons {
+          display: grid;
+          grid-template-columns: auto 1fr 1fr;
+          gap: 24px;
+          margin-bottom: 72px;
+          .price {
+            .block-price {
+              color: #00fc7b;
+              line-height: 1.5;
+              display: flex;
+              align-items: center;
+              font-size: 24px;
+              &:after {
+                content: url("~/assets/eth.png");
+                margin-left: 4px;
+              }
+            }
+            .block-price-dollar {
+              font-size: 14px;
+            }
+          }
+          .buy-now {
+              background: #090069;
+              padding: 18px;
+              border-radius: 12px;
+              text-align: center;
+          }
+          .place-bid {
+            background: #ff2dac;
+            padding: 18px;
+            border-radius: 12px;
+            text-align: center;
+          }
+        }
+        .history {
+          .history-title {
+            font-size: 32px;
+          }
+        }
+      }
+    }
+  }
+  @media screen and (max-width: 768px) {
+    background:linear-gradient(38deg, #09097e 80%, #af00ff 100%);
+    .page-background-text {
+      display: none;
+    }
+    .content {
+      background-size: 300px;
+      background-position: right 100px;
+      .header {
+        a {
+          font-size: 14px;
+        }
+      }
+    }
+
+  }
+}
+</style>
