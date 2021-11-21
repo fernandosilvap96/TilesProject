@@ -45,16 +45,11 @@ export default {}
   min-height: 100vh;
   height: 100%;
   background: rgb(9,9,126);
-  background:linear-gradient(38deg, #09097e 24%, #af00ff 100%);
+  background:linear-gradient(38deg, #09097e 24%, #510074 100%);
   position: relative;
   display: grid;
   grid-template-rows: 1fr auto;
-  .footer {
-    max-width: 1200px;
-    margin: auto;
-    padding: 48px 16px;
-    width: 100%;
-  }
+
   .page-background-text {
     position: absolute;
     top: 262px;
@@ -62,6 +57,7 @@ export default {}
     right: 0;
     font-size: 320px;
     white-space: nowrap;
+    font-family: 'Bungee', cursive;
     color: rgba(255,255,255, 0.2);
     overflow: hidden;
   }
@@ -73,14 +69,9 @@ export default {}
     background-image: url("~/assets/man.png");
     background-repeat: no-repeat;
     background-position: right 50px;
-    background-size: 700px;
+    background-size: 600px;
 
-    .header {
-      padding: 24px 0;
-      display: flex;
-      gap: 20px;
-      align-items: center;
-    }
+
     .main {
       .title {
         font-size: 75px;
@@ -98,8 +89,8 @@ export default {}
         margin-bottom: 16px;
         font-size: 16px;
         line-height: 24px;
-        color: #ffffff;
-        font-weight: 300;
+        //color: #ffffff;
+        font-weight: 600;
       }
       .title-description-unique {
         margin-top: 30px;
@@ -111,7 +102,7 @@ export default {}
       display: grid;
       grid-template-columns: 1fr 1fr 1fr 1fr;
       gap: 24px;
-      padding-bottom: 200px;
+      padding-bottom: 100px;
 
       .block {
         padding: 20px;

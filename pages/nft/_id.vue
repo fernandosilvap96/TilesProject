@@ -22,8 +22,8 @@
               <p class='block-price'>0.1</p>
               <p class='block-price-dollar'>$416</p>
             </div>
-            <nuxt-link to='#' class='buy-now'>Buy now!</nuxt-link>
-            <nuxt-link to='#' class='place-bid'>Place a bid</nuxt-link>
+            <nuxt-link to='#' class='buy-now buttons-mobile'>Buy now!</nuxt-link>
+            <nuxt-link to='#' class='place-bid buttons-mobile'>Place a bid</nuxt-link>
           </div>
           <div class='history'>
             <h1 class='history-title'>HISTORY</h1>
@@ -34,6 +34,9 @@
         </div>
       </div>
 
+    </div>
+    <div class='footer'>
+      <p>© 2021 Reat Media Limited. All right registered</p>
     </div>
   </div>
 </template>
@@ -49,18 +52,15 @@ export default {
   min-height: 100vh;
   height: 100%;
   background: rgb(9,9,126);
-  background:linear-gradient(38deg, #09097e 24%, #af00ff 100%);
+  background:linear-gradient(38deg, #09097e 24%, #510074 100%);
   position: relative;
+  display: grid;
+  grid-template-rows: 1fr auto;
   .content {
     max-width: 1200px;
-    margin: auto;
+    //width: 100%;
+    margin: 0 auto;
     padding: 0 16px;
-    .header {
-      padding: 24px 0;
-      display: flex;
-      gap: 20px;
-      align-items: center;
-    }
     .about-block {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -138,6 +138,9 @@ export default {
           }
         }
       }
+      @media screen and (max-width: 768px) {
+        grid-template-columns: 1fr;
+      }
     }
   }
   @media screen and (max-width: 768px) {
@@ -155,6 +158,15 @@ export default {
       }
     }
 
+  }
+}
+.buttons-mobile {
+  @media screen and (max-width: 768px) {
+    font-size: 14px;
+    padding: 6px !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 }
 </style>

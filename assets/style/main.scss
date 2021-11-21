@@ -1,5 +1,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Bungee&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Bungee&display=swap');
+
+@import url('https://fonts.googleapis.com/css2?family=Recursive:wght@300;400;500;600;700&display=swap');
 html, body, div, span, applet, object, iframe,
 h1, h2, h3, h4, h5, h6, p, blockquote, pre,
 a, abbr, acronym, address, big, cite, code,
@@ -27,9 +29,11 @@ footer, header, hgroup, menu, nav, section {
 }
 body {
   line-height: 1;
-  color: white;
-  font-family: 'Bungee', cursive;
+  color: #c0b9d1;
+  font-family: 'Recursive', sans-serif;
+  //font-family: 'Bungee', cursive;
   overflow-x: hidden;
+  font-weight: bold;
 }
 ol, ul {
   list-style: none;
@@ -49,4 +53,30 @@ table {
 a {
   text-decoration: none;
   color: inherit;
+}
+
+.footer {
+  max-width: 1200px;
+  margin: auto;
+  padding: 48px 16px;
+  //width: 100%;
+  p {
+    font-size: 12px;
+  }
+}
+.header {
+  padding: 24px 0;
+  display: flex;
+  gap: 20px;
+  align-items: center;
+  img {
+    width: 55px;
+    margin-right: 8px;
+  }
+  @media screen and (max-width: 768px) {
+    gap: 14px;
+    img {
+      width: 40px;
+    }
+  }
 }
