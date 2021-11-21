@@ -49,6 +49,7 @@ export default {}
   position: relative;
   display: grid;
   grid-template-rows: 1fr auto;
+  padding: 0 16px;
 
   .page-background-text {
     position: absolute;
@@ -63,9 +64,9 @@ export default {}
   }
   .content {
     max-width: 1200px;
-    //width: 100%;
+    width: 100%;
     margin: 0 auto;
-    padding: 0 16px;
+
     background-image: url("~/assets/man.png");
     background-repeat: no-repeat;
     background-position: right 50px;

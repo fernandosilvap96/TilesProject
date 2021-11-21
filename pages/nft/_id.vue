@@ -56,11 +56,12 @@ export default {
   position: relative;
   display: grid;
   grid-template-rows: 1fr auto;
+  padding: 0 16px;
   .content {
     max-width: 1200px;
     //width: 100%;
     margin: 0 auto;
-    padding: 0 16px;
+
     .about-block {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -70,7 +71,7 @@ export default {
         min-height: 460px;
         border-radius: 30px;
         border: 2px dashed rgba(255,255,255, 0.3);
-        padding: 48px;
+        padding: 40px 30px;
         background-image: url("~/assets/man.png");
         background-repeat: no-repeat;
         background-position: 50px 50px;
