@@ -63,7 +63,7 @@ export default {}
   }
   .content {
     max-width: 1200px;
-    width: 100%;
+    //width: 100%;
     margin: 0 auto;
     padding: 0 16px;
     background-image: url("~/assets/man.png");
@@ -94,7 +94,7 @@ export default {}
       }
       .title-description-unique {
         margin-top: 30px;
-        color: #108d7f;
+        color: #00fc7b;
       }
       margin-bottom: 240px;
     }
