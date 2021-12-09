@@ -131,6 +131,7 @@
 <script>
 // Import the editor default configuration
 import { getEditorDefaults } from 'pintura';
+import pinata from '../../../service/pinata'
 
 // Import the component from `vue-pintura`
 import { PinturaEditor, PinturaEditorModal } from 'vue-pintura';
@@ -157,10 +158,17 @@ export default {
   },
   methods: {
     handleInlineProcess(event){
+      const tileId = this.$route.params.buy
       this.inlineResult = URL.createObjectURL(event.dest);
+      let data = new FormData()
+      data.append('file', event.dest)
+      data.append('pinataMetadata', JSON.stringify({tile: tileId}))
+      pinata.addPinata(this.$axios, data)
     },
     inputFile(event){
+
       this.src = event.target.files[0]
+      console.log(this.src)
     },
     inputFileVideo(event){
       console.log(event, "video")
