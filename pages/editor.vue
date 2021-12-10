@@ -10,7 +10,7 @@
       </div>
       <div class='about-block'>
         <popup v-if='walletPopup'>
-          <wallet @setWalletKey='setWalletKey' />
+          <wallet @setWalletKey='setWalletKey' @walletClose='walletClose' />
         </popup>
         <popup v-if='loading'>
           <wait-transaction :transactionInfo='transactionInfo' />
@@ -18,6 +18,40 @@
         <popup v-if='successPopup'>
           <transaction-success :transactionInfo='transactionInfo' />
         </popup>
+        <div class='mobile-history'>
+          <h1 class='history-title mobile-history'>CUSTOMIZE YOUR TILE</h1>
+          <div class='upload-buttons mobile-history'>
+            <div class='upload-buttons-item'>
+              <label>
+                <img src='~/assets/upload-image.svg' alt=''>
+                <p>image</p>
+                <input
+                  class='input-upload'
+                  ref="upload"
+                  type="file"
+                  name="file-upload"
+                  multiple=""
+                  accept="image/jpeg, image/png"
+                  @change="inputFile">
+              </label>
+            </div>
+            <div class='upload-buttons-item'>
+              <label>
+                <img src='~/assets/video.svg' alt=''>
+                <p>video</p>
+                <input
+                  class='input-upload'
+                  ref="upload"
+                  type="file"
+                  name="file-upload"
+                  multiple=""
+                  accept="video/*"
+                  @change="inputFileVideo">
+              </label>
+
+            </div>
+          </div>
+        </div>
         <component
           :is='editBlockComponent'
           :src='src'
@@ -31,10 +65,8 @@
             <div class='upload-buttons desktop'>
               <div class='upload-buttons-item'>
               <label>
-
                   <img src='~/assets/upload-image.svg' alt=''>
                   <p>image</p>
-
                 <input
                   class='input-upload'
                   ref="upload"
@@ -80,7 +112,7 @@
 
     </div>
     <div class='footer'>
-      <p>© 2021 Reat Media Limited. All right registered</p>
+      <p>© 2021 10 Tiles LTD.</p>
     </div>
   </div>
 </template>
@@ -121,16 +153,16 @@ export default {
       inlineResult: undefined,
       // The source image to load
       src: undefined,
-
       // This will set a square crop aspect ratio
       uploadElement: 'image',
-      loading: false,
-      waitLoading: false,
       errorText: '',
-      walletPopup: false,
       walletKey: undefined,
       transactionInfo: {},
-      successPopup: false
+
+      successPopup: false,
+      waitLoading: false,
+      loading: false,
+      walletPopup: false,
     };
   },
   computed: {
@@ -223,6 +255,9 @@ export default {
         reader.onload = () => resolve(reader.result);
         reader.onerror = error => reject(error);
       })
+    },
+    walletClose(){
+      this.walletPopup = false
     }
   }
 }
@@ -393,42 +428,6 @@ export default {
   }
 }
 .history {
-  .history-title {
-    font-size: 32px;
-  }
-  .upload-buttons {
-    display: grid;
-    grid-template-columns: 80px 80px;
-    grid-template-rows: 90px;
-    gap: 24px;
-    margin-top: 30px;
-    margin-bottom: 70px;
-    .upload-buttons-item {
-      background-color: white;
-      border-radius: 12px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      label {
-        padding: 12px;
-      }
-      img {
-        width: 45px;
-        height: 45px;
-      }
-      p {
-        color: #09097e;
-      }
-      &:hover {
-        cursor: pointer;
-        -webkit-box-shadow: 1px 14px 62px 11px rgba(0, 252, 123, 1);
-        -moz-box-shadow: 1px 14px 62px 11px rgba(0, 252, 123, 1);
-        box-shadow: 1px 14px 62px 11px rgba(0, 252, 123, 1);
-        background: white;
-        transition: 0.3s;
-      }
-    }
-  }
   .element-link-label {
     display: flex;
     flex-direction: column;
@@ -445,15 +444,49 @@ export default {
     }
   }
 }
-.mobile-history {
-  margin-top: 40px;
-  @media screen and (min-width: 768px) {
-    display: none;
+
+.history-title {
+  font-size: 32px;
+  color: white;
+  font-family: 'Bungee', cursive;
+  @media screen and (max-width: 768px) {
   }
 }
-.desktop {
+.upload-buttons {
+  display: grid;
+  grid-template-columns: 80px 80px;
+  grid-template-rows: 90px;
+  gap: 24px;
+  margin-top: 30px;
+  margin-bottom: 70px;
+  .upload-buttons-item {
+    background-color: white;
+    border-radius: 12px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    label {
+      padding: 12px;
+    }
+    img {
+      width: 45px;
+      height: 45px;
+    }
+    p {
+      color: #09097e;
+    }
+    &:hover {
+      cursor: pointer;
+      -webkit-box-shadow: 1px 14px 62px 11px rgba(0, 252, 123, 1);
+      -moz-box-shadow: 1px 14px 62px 11px rgba(0, 252, 123, 1);
+      box-shadow: 1px 14px 62px 11px rgba(0, 252, 123, 1);
+      background: white;
+      transition: 0.3s;
+    }
+  }
   @media screen and (max-width: 768px) {
-    display: none !important;
+    margin-top: 30px;
+    margin-bottom: 0;
   }
 }
 
@@ -472,6 +505,16 @@ input[type="file"] {
 .error-text {
   p {
     color: orangered;
+  }
+}
+.mobile-history {
+  @media screen and (min-width: 768px) {
+    display: none;
+  }
+}
+.desktop {
+  @media screen and (max-width: 768px) {
+    display: none !important;
   }
 }
 </style>

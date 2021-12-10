@@ -123,7 +123,7 @@
 
     </div>
     <div class='footer'>
-      <p>© 2021 Reat Media Limited. All right registered</p>
+      <p>© 2021 10 Tiles LTD.</p>
     </div>
   </div>
 </template>

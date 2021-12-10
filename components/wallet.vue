@@ -1,7 +1,7 @@
 <template>
   <div class="wallet">
     <div>
-      <p>Return to editor</p>
+      <p @click='$emit("walletClose")' class='return-back'><img src='~/assets/arrow-left.svg' alt=''> Return to editor</p>
     </div>
 
     <div class="wallet--content">
@@ -103,5 +103,17 @@ export default {
 .error-text {
   margin-top: 12px;
   color: orangered;
+}
+.return-back {
+  color: white;
+  display: inline-flex;
+  img {
+    width: 16px;
+    margin-right: 8px;
+  }
+  &:hover {
+    cursor: pointer;
+    color: #3d92d9;
+  }
 }
 </style>

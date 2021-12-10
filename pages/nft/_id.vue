@@ -17,6 +17,7 @@
           </div>
         </div>
         <div class='about-block__description'>
+          <h1 class='about-block-title'>TILE #{{$route.params.id}}</h1>
           <div class='des-buttons'>
             <div class='price'>
               <p class='block-price'>0.1</p>
@@ -26,9 +27,22 @@
             <nuxt-link to='#' class='place-bid buttons-mobile'>Place a bid</nuxt-link>
           </div>
           <div class='history'>
-            <h1 class='history-title'>HISTORY</h1>
-            <div class='history-item'>
 
+            <div class='history-item'>
+              <p>Owner: <span>1234512345</span></p>
+              <p>Contract Address: <span>1234512345</span></p>
+              <p>Metadata on Arweave: <span>1234512345</span></p>
+              <p>Token ID: <span>1234512345</span></p>
+            </div>
+            <h1 class='history-title'>HISTORY</h1>
+            <div class='history-blocks'>
+              <div v-for='i in 4' class='history-blocks__block'>
+                <img class='history-blocks__block-image' src='~/assets/user-icon.svg' alt=''>
+                <div class='history-blocks__block-content'>
+                  <p class='history-blocks__block-title'>Listed for <span>0.1 <img src='~/assets/eth.png' alt=''></span></p>
+                  <p class='history-blocks__block-des'>by a 12341234 1 hour ago</p>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -36,7 +50,7 @@
 
     </div>
     <div class='footer'>
-      <p>© 2021 Reat Media Limited. All right registered</p>
+      <p>© 2021 10 Tiles LTD.</p>
     </div>
   </div>
 </template>
@@ -67,6 +81,15 @@ export default {
       grid-template-columns: 1fr 1fr;
       gap: 120px;
       margin-top: 60px;
+      .about-block-title {
+        font-size: 54px;
+        line-height: 50px;
+        color: #00fc7b;
+        font-weight: 400;
+        font-family: 'Bungee', cursive;
+
+        margin-bottom: 14px;
+      }
       &__block {
         min-height: 460px;
         border-radius: 30px;
@@ -103,7 +126,7 @@ export default {
           display: grid;
           grid-template-columns: auto 1fr 1fr;
           gap: 24px;
-          margin-bottom: 72px;
+          margin-bottom: 48px;
           .price {
             .block-price {
               color: #00fc7b;
@@ -136,6 +159,47 @@ export default {
         .history {
           .history-title {
             font-size: 32px;
+            font-weight: bold;
+            font-family: "Bungee", cursive;
+            color: white;
+          }
+          .history-item {
+            margin: 24px 0;
+            p {
+              margin-bottom: 10px;
+              font-size: 14px;
+              span {
+                color: #00fc7b;
+              }
+            }
+          }
+          .history-blocks {
+            margin-top: 12px;
+            &__block {
+              margin-bottom: 12px;
+              display: grid;
+              grid-template-columns: auto 1fr;
+              gap: 16px;
+              &-image {
+                width: 40px;
+                height: auto;
+
+              }
+              &-content {
+                display: flex;
+                flex-direction: column;
+                justify-content: space-around;
+              }
+              &-title {
+                img {
+                  width: 10px;
+                }
+              }
+              &-des {
+                font-size: 12px;
+                font-weight: lighter;
+              }
+            }
           }
         }
       }
