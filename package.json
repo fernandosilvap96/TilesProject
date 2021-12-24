@@ -12,6 +12,7 @@
     "@nuxtjs/axios": "^5.13.6",
     "arbundles": "^0.3.4",
     "arweave": "^1.10.18",
+    "axios": "^0.21.4",
     "core-js": "^3.15.1",
     "nuxt": "^2.15.7",
     "nuxt-web3": "^0.0.6",

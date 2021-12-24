@@ -1,128 +1,129 @@
 <template>
-  <div class='page'>
-    <div class='content'>
-      <div class='header'>
-        <img src='~/assets/logo.png' alt=''>
-        <a href='/'>Home</a>
-        <a href='/home'>How it works</a>
-        <a href='/home'>FAQ</a>
-        <a href='/home'>Contacts</a>
+  <div class="page">
+    <div class="content">
+      <div class="header">
+        <img src="~/assets/logo.png" alt="" />
+        <a href="/">Home</a>
+        <a href="/home">How it works</a>
+        <a href="/home">FAQ</a>
+        <a href="/home">Contacts</a>
       </div>
-      <div class='about-block'>
-        <popup v-if='walletPopup'>
-          <wallet @setWalletKey='setWalletKey' @walletClose='walletClose' />
+      <div class="about-block">
+        <popup v-if="walletPopup">
+          <wallet @setWalletKey="setWalletKey" @walletClose="walletClose" />
         </popup>
-        <popup v-if='loading'>
-          <wait-transaction :transactionInfo='transactionInfo' />
+        <popup v-if="loading">
+          <wait-transaction :transactionInfo="transactionInfo" />
         </popup>
-        <popup v-if='successPopup'>
-          <transaction-success :transactionInfo='transactionInfo' />
+        <popup v-if="successPopup">
+          <transaction-success :transactionInfo="transactionInfo" />
         </popup>
-        <div class='mobile-history'>
-          <h1 class='history-title mobile-history'>CUSTOMIZE YOUR TILE</h1>
-          <div class='upload-buttons mobile-history'>
-            <div class='upload-buttons-item'>
+        <div class="mobile-history">
+          <h1 class="history-title mobile-history">CUSTOMIZE YOUR TILE</h1>
+          <div class="upload-buttons mobile-history">
+            <div class="upload-buttons-item">
               <label>
-                <img src='~/assets/upload-image.svg' alt=''>
+                <img src="~/assets/upload-image.svg" alt="" />
                 <p>image</p>
                 <input
-                  class='input-upload'
+                  class="input-upload"
                   ref="upload"
                   type="file"
                   name="file-upload"
                   multiple=""
                   accept="image/jpeg, image/png"
-                  @change="inputFile">
+                  @change="inputFile"
+                />
               </label>
             </div>
-            <div class='upload-buttons-item'>
+            <div class="upload-buttons-item">
               <label>
-                <img src='~/assets/video.svg' alt=''>
+                <img src="~/assets/video.svg" alt="" />
                 <p>video</p>
                 <input
-                  class='input-upload'
+                  class="input-upload"
                   ref="upload"
                   type="file"
                   name="file-upload"
                   multiple=""
                   accept="video/*"
-                  @change="inputFileVideo">
+                  @change="inputFileVideo"
+                />
               </label>
-
             </div>
           </div>
         </div>
         <component
-          :is='editBlockComponent'
-          :src='src'
-          :inlineResult='inlineResult'
-          :uploadElement='uploadElement'
-          @handleInlineProcess='handleInlineProcess'
+          :is="editBlockComponent"
+          :src="src"
+          :inlineResult="inlineResult"
+          :uploadElement="uploadElement"
+          @handleInlineProcess="handleInlineProcess"
         />
-        <div class='about-block__description'>
-          <div class='history'>
-            <h1 class='history-title desktop'>CUSTOMIZE YOUR TILE</h1>
-            <div class='upload-buttons desktop'>
-              <div class='upload-buttons-item'>
-              <label>
-                  <img src='~/assets/upload-image.svg' alt=''>
-                  <p>image</p>
-                <input
-                  class='input-upload'
-                  ref="upload"
-                  type="file"
-                  name="file-upload"
-                  multiple=""
-                  accept="image/jpeg, image/png"
-                  @change="inputFile">
-              </label>
-              </div>
-              <div class='upload-buttons-item'>
+        <div class="about-block__description">
+          <div class="history">
+            <h1 class="history-title desktop">CUSTOMIZE YOUR TILE</h1>
+
+            <div class="upload-buttons desktop">
+              <div class="upload-buttons-item">
                 <label>
-                  <img src='~/assets/video.svg' alt=''>
+                  <img src="~/assets/upload-image.svg" alt="" />
+                  <p>image</p>
+                  <input
+                    class="input-upload"
+                    ref="upload"
+                    type="file"
+                    name="file-upload"
+                    multiple=""
+                    accept="image/jpeg, image/png"
+                    @change="inputFile"
+                  />
+                </label>
+              </div>
+              <div class="upload-buttons-item">
+                <label>
+                  <img src="~/assets/video.svg" alt="" />
                   <p>video</p>
                   <input
-                    class='input-upload'
+                    class="input-upload"
                     ref="upload"
                     type="file"
                     name="file-upload"
                     multiple=""
                     accept="video/*"
-                    @change="inputFileVideo">
+                    @change="inputFileVideo"
+                  />
                 </label>
-
               </div>
             </div>
 
-            <label class='element-link-label'>
+            <label class="element-link-label">
               <small>link</small>
-              <input type='text'>
+              <input type="text" />
             </label>
 
-            <div v-if='errorText' class='save-buttons error-text'>
-              <p>{{errorText}}</p>
+            <div v-if="errorText" class="save-buttons error-text">
+              <p>{{ errorText }}</p>
             </div>
-            <div v-if='loading === false' class='save-buttons'>
-              <button @click='uploadToArweave()' class='save-buttons__save'>Save and close</button>
-              <button class='save-buttons__cancel'>Cancel</button>
+            <div v-if="loading === false" class="save-buttons">
+              <button @click="uploadToArweave()" class="save-buttons__save">
+                Save and close
+              </button>
+              <button class="save-buttons__cancel">Cancel</button>
             </div>
           </div>
         </div>
       </div>
-
     </div>
-    <div class='footer'>
+    <div class="footer">
       <p>© 2021 10 Tiles LTD.</p>
     </div>
   </div>
 </template>
 
 <script>
-
-
-
 // Import the editor default configuration
-import { getEditorDefaults } from 'pintura';
+import { getEditorDefaults } from 'pintura'
 
 import arweave from '../service/arweave'
 import EditIdle from '../components/editIdle'
@@ -133,7 +134,7 @@ import TransactionSuccess from '../components/transactionSuccess'
 // import { ArweaveSigner, createData } from "arbundles";
 
 const states = {
-  idle: EditIdle
+  idle: EditIdle,
 }
 let getStatus
 export default {
@@ -143,7 +144,7 @@ export default {
     WaitTransaction,
     Wallet,
     Popup,
-    EditIdle
+    EditIdle,
   },
   data() {
     return {
@@ -163,83 +164,185 @@ export default {
       waitLoading: false,
       loading: false,
       walletPopup: false,
-    };
+      ip: '',
+    }
   },
   computed: {
     editBlockComponent() {
       return states[this.editState]
-    }
+    },
+  },
+  created() {
+    console.log('created no editor')
   },
   methods: {
-    handleInlineProcess(event){
-      this.inlineResult = URL.createObjectURL(event.dest);
+    //Faz upload to Arweave
+    // => JSON
+    async fetchSomething() {
+      //O Blob precisa de comida => id da IMG
+      console.log('olha a transaction info da img')
+      console.log(this.transactionInfo.transactionId)
+      this.createBlob()
+      this.walletPopup = false
+      try {
+        this.loading = true
+        const type = this.src.type
+
+        console.log('toBase64')
+        const imageDataUri = await this.toBase64(this.src)
+
+        console.log('Buffer')
+        const imageBuffer = Buffer.from(imageDataUri.split(',')[1], 'base64')
+
+        console.log('antes da tx')
+
+        const transaction = await arweave.createTransaction(
+          {
+            data: imageBuffer,
+          },
+          this.walletKey
+        )
+        //ID (X)
+        //OWNER (X)
+        //SIGANTURE (X)
+        console.log(transaction)
+
+        transaction.addTag('Content-Type', type)
+
+        const assinatura = await arweave.transactions.sign(
+          transaction,
+          this.walletKey
+        )
+        console.log(assinatura)
+        await arweave.transactions.post(transaction)
+
+        //console.log('post response', postResponse)
+        // console.log(
+        //   'getStatus',
+        //   await arweave.transactions.getStatus(transaction.id)
+        // )
+
+        this.transactionInfo = {
+          address: await arweave.wallets.jwkToAddress(this.walletKey),
+          transactionId: transaction.id,
+        }
+        console.log('ID JSON' + this.transactionInfo.transactionId)
+        getStatus = setInterval(() => this.getTransactionStatus(), 60000)
+      } catch (err) {
+        console.log(err)
+      }
     },
-    inputFile(event){
+    async createBlob() {
+      //transactionId
+      var txid = this.transactionInfo.transactionId.toString()
+      var part1 =
+        '{\n    "name": "First Permanent NFT (para valer)",\n    "description": "Description for tiles collection",\n    "fee_recipient": "",\n    "seller_fee_basis_points": 250,\n'
+      var part2 = '"image":' + '"https://arweave.net/' + txid + '"'
+      var part3 =
+        ',\n    "external_url": "",\n    "attributes": [\n        {\n            "trait_type": "Bg Exports",\n            "value": "Wd Nft"\n        },\n        {\n            "trait_type": "Heads Png",\n            "value": "Wd 0014 Wdhead18"\n        },\n        {\n            "trait_type": "Bodies Png",\n            "value": "Wd 0000 Wdbody10"\n        },\n        {\n            "trait_type": "Front Png",\n            "value": "Wd Front 0002 Wd Front 0001 Wd 0035 Wdfront1"\n        }\n    ],\n    "hash": "ea318b62ef4c54dea0e82999c655a5da",\n    "edition": "1"\n}'
+
+      // var jsonStringified =
+      //   '{\n    "name": "First Permanent NFT",\n    "description": "Description for tiles collection",\n    "fee_recipient": "",\n    "seller_fee_basis_points": 250,\n    "image": "https://arweave.net/9GfyYUNFh2ybQ41MOzLmU-vNrfsnivIRJfigNVN8R2I",\n    "external_url": "",\n    "attributes": [\n        {\n            "trait_type": "Bg Exports",\n            "value": "Wd Nft"\n        },\n        {\n            "trait_type": "Heads Png",\n            "value": "Wd 0014 Wdhead18"\n        },\n        {\n            "trait_type": "Bodies Png",\n            "value": "Wd 0000 Wdbody10"\n        },\n        {\n            "trait_type": "Front Png",\n            "value": "Wd Front 0002 Wd Front 0001 Wd 0035 Wdfront1"\n        }\n    ],\n    "hash": "ea318b62ef4c54dea0e82999c655a5da",\n    "edition": "1"\n}'
+      var jsonStringified = part1 + part2 + part3
+
+      var aFileParts = [jsonStringified]
+      var blob = new Blob(aFileParts, { type: 'application/json' }) // the blob
+      //this.inlineResult = URL.createObjectURL(blob)
+      //console.log('this.inlineResult ', this.inlineResult)
+      this.src = blob
+      this.uploadElement = 'json'
+    },
+    handleInlineProcess(event) {
+      this.inlineResult = URL.createObjectURL(event.dest)
+    },
+    //Para IMAGEM
+    inputFile(event) {
       if (!event.target.files.length) {
         return
       }
+      //Se tem arquivo na fila
       this.src = event.target.files[0]
       this.uploadElement = 'image'
     },
-    inputFileVideo(event){
+    //Para VIDEO
+    inputFileVideo(event) {
       console.log(event)
       if (!event.target.files.length) {
         return
       }
       this.src = event.target.files[0]
-      this.inlineResult = URL.createObjectURL(this.src);
       this.uploadElement = 'video'
     },
-    async uploadToArweave(){
+    inputJson(event) {
+      if (!event.target.files.length) {
+        return
+      }
+      this.src = event.target.files[0]
+      this.uploadElement = 'json'
+    },
+    async uploadToArweave() {
       this.errorText = ''
       console.log(this.src)
       if (!this.src) {
         this.errorText = 'input image or video'
         return false
       }
+      //Se tiver algo no src
+      try {
+        //Chamar o POPUP "It's time for permanence"
+        //this.walletPopup = true
 
-      try{
-        this.walletPopup = true
-      }catch (err) {
+        //Faz upload da img
+        this.setWalletKey(this.key)
+      } catch (err) {
         this.walletPopup = false
         this.errorText = 'transaction error. try again'
       }
-
-
     },
     async setWalletKey(key) {
+      //Faz upload to Arweave
+      // => IMAGEM
       this.walletKey = key
       this.walletPopup = false
       try {
+        console.log('entrou no upload img')
+        //Chamar o POPUP "Waiting for a transaction"
         this.loading = true
         const type = this.src.type
+
+        //1) Blob => base de um file
+        //2) File =>
         const imageDataUri = await this.toBase64(this.src)
-        const imageBuffer = Buffer.from(imageDataUri.split(",")[1], "base64");
+
+        const imageBuffer = Buffer.from(imageDataUri.split(',')[1], 'base64')
         const transaction = await arweave.createTransaction(
           {
-            data: imageBuffer
+            data: imageBuffer,
           },
           key
-        );
-        transaction.addTag('Content-Type', type);
-        await arweave.transactions.sign(transaction, key);
-        await arweave.transactions.post(transaction);
+        )
+        transaction.addTag('Content-Type', type)
+        await arweave.transactions.sign(transaction, key)
+        await arweave.transactions.post(transaction)
         // console.log("post response", postResponse);
         // console.log('getStatus',await arweave.transactions.getStatus(transaction.id))
         this.transactionInfo = {
           address: await arweave.wallets.jwkToAddress(key),
-          transactionId: transaction.id
+          transactionId: transaction.id,
         }
-        getStatus = setInterval( () => this.getTransactionStatus(), 60000)
-      }catch (err) {
 
+        this.fetchSomething()
+        getStatus = setInterval(() => this.getTransactionStatus(), 60000)
+      } catch (err) {
+        console.log(err)
       }
-
     },
-    async getTransactionStatus(){
-      let status = await arweave.transactions.getStatus(this.transactionInfo.transactionId)
+    async getTransactionStatus() {
+      let status = await arweave.transactions.getStatus(
+        this.transactionInfo.transactionId
+      )
       console.log(status)
-      if (status.status !== 202 ) {
+      if (status.status !== 202) {
         clearInterval(getStatus)
       }
       if (status.status === 200) {
@@ -250,27 +353,27 @@ export default {
     },
     toBase64(file) {
       return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.readAsDataURL(file);
-        reader.onload = () => resolve(reader.result);
-        reader.onerror = error => reject(error);
+        const reader = new FileReader()
+        reader.readAsDataURL(file)
+        reader.onload = () => resolve(reader.result)
+        reader.onerror = (error) => reject(error)
       })
     },
-    walletClose(){
+    walletClose() {
       this.walletPopup = false
-    }
-  }
+    },
+  },
 }
 </script>
 
 <style lang='scss'>
 @import '../node_modules/pintura/pintura.css';
 
-.page{
+.page {
   min-height: 100vh;
   height: 100%;
-  background: rgb(9,9,126);
-  background:linear-gradient(38deg, #09097e 24%, #510074 100%);
+  background: rgb(9, 9, 126);
+  background: linear-gradient(38deg, #09097e 24%, #510074 100%);
   position: relative;
   display: grid;
   grid-template-rows: 1fr auto;
@@ -289,11 +392,11 @@ export default {
       &__block {
         min-height: 460px;
         border-radius: 30px;
-        border: 2px dashed rgba(255,255,255, 0.3);
+        border: 2px dashed rgba(255, 255, 255, 0.3);
         background-position: center;
         background-repeat: no-repeat;
         background-size: cover;
-        .block-elements{
+        .block-elements {
         }
         &--video {
           border: none;
@@ -302,7 +405,7 @@ export default {
           min-height: 300px;
         }
       }
-      &__description{
+      &__description {
         .des-buttons {
           display: grid;
           grid-template-columns: auto 1fr 1fr;
@@ -316,7 +419,7 @@ export default {
               align-items: center;
               font-size: 24px;
               &:after {
-                content: url("~/assets/eth.png");
+                content: url('~/assets/eth.png');
                 margin-left: 4px;
               }
             }
@@ -337,7 +440,6 @@ export default {
             text-align: center;
           }
         }
-
       }
       @media screen and (max-width: 1024px) {
         gap: 50px;
@@ -356,21 +458,21 @@ export default {
         width: 40%;
         opacity: 0;
       }
-      input{
+      input {
         width: 0;
         height: 0;
       }
       &:hover {
         cursor: pointer;
         img {
-          transition: .4s;
-          opacity: .6;
+          transition: 0.4s;
+          opacity: 0.6;
         }
       }
     }
   }
   @media screen and (max-width: 768px) {
-    background:linear-gradient(38deg, #09097e 80%, #af00ff 100%);
+    background: linear-gradient(38deg, #09097e 80%, #af00ff 100%);
     .page-background-text {
       display: none;
     }
@@ -383,7 +485,6 @@ export default {
         }
       }
     }
-
   }
 }
 .input-upload {
@@ -396,7 +497,7 @@ export default {
   grid-template-columns: auto auto;
   gap: 24px;
   margin-top: 50px;
-  &__save{
+  &__save {
     background: #090069;
     padding: 18px;
     border-radius: 12px;
@@ -435,8 +536,9 @@ export default {
       font-size: 12px;
     }
     input {
-      background-color: rgba(0,0,0,0);
-      outline: none;border: none;
+      background-color: rgba(0, 0, 0, 0);
+      outline: none;
+      border: none;
       font-size: 18px;
       color: white;
       padding: 8px 0px;
@@ -493,7 +595,7 @@ export default {
 video {
   width: 100%;
 }
-input[type="file"] {
+input[type='file'] {
   width: 0.1px;
   height: 0.1px;
   opacity: 0;
