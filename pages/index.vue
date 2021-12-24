@@ -42,12 +42,20 @@
       <div class="blocks">
         <div class="none"></div>
         <a
-          v-for="token in alltokens"
-          :href="base + token"
-          :key="token"
+          v-for="link in ip.assets"
+          :href="link.permalink"
+          :key="link"
           class="block"
           target="_blank"
         >
+          <div>
+            <img
+              :src="link.image_url"
+              :key="link"
+              class="block"
+              target="_blank"
+            />
+          </div>
           <div>
             <p class="block-price">0.1</p>
             <p class="block-price-dollar">$416</p>
@@ -70,6 +78,7 @@
 import Web3 from 'web3'
 import json from '~/build/contracts/Tiles.json'
 import TruffleContract from 'truffle-contract'
+import axios from 'axios'
 
 export default {
   data() {
@@ -98,19 +107,27 @@ export default {
       id: 0,
       tokenIds: [],
       alltokens: [],
-      base: 'https://testnets.opensea.io/assets/0xc1d4e96cb49f4f0c7409640d6a9c015c92ef5efd/',
+      ip: '',
     }
   },
   created() {
     console.log('created')
     this.load()
+    this.fetchSomething()
   },
   methods: {
+    async fetchSomething() {
+      const ip = await this.$axios.$get(
+        'https://api.opensea.io/api/v1/assets?asset_contract_address=0xc2D6B32E533e7A8dA404aBb13790a5a2F606aD75&order_direction=desc&offset=0&limit=20'
+      )
+      this.ip = ip
+    },
     async load() {
       await this.loadWeb3()
       await this.loadAccount(this)
       await this.loadContract(this)
       await this.renderTasks(this)
+      await this.loadAssets(this)
       this.loading = false
     },
     async loadWeb3() {
@@ -153,6 +170,12 @@ export default {
         )
       }
     },
+    activated() {
+      // Call fetch again if last fetch more than 30 sec ago
+      if (this.$fetchState.timestamp <= Date.now() - 30000) {
+        this.$fetch()
+      }
+    },
     loadAccount: async (parent) => {
       // Set the current blockchain account
       let accounts = await ethereum.request({
@@ -189,44 +212,18 @@ export default {
       // Update loading state
       parent.loading = false
     },
-
     renderTasks: async (parent) => {
       // Load the total task count from the blockchain
       const taskCount = await parent.todoList.maxSupply()
       console.log('maxsupply:' + taskCount)
 
-      parent.alltokens = await parent.todoList.asd()
-      console.log('alltokens:' + parent.alltokens)
+      // Abordagem 1 => "Smart Contract"
+      // parent.alltokens = await parent.todoList.asd()
+      // console.log('alltokens:' + parent.alltokens)
 
       parent.tokenIds = await parent.todoList.walletOfHolder(parent.account)
       console.log('tokenIds:' + parent.tokenIds)
-
-      /*
-      parent.tasks = [];
-      for (var i = 1; i <= taskCount; i++) {
-        // Fetch the task data from the blockchain
-        const task = await parent.todoList.tasks(i);
-        let taskJson = {
-          id: task[0].toNumber(),
-          content: task[1],
-          complete: task[2],
-        };
-        console.log("Task", taskJson);
-        parent.tasks.push(taskJson);
-      }
-      */
     },
-
-    async createTask() {
-      this.loading = true
-      await this.todoList.createTask(this.newTaskCont, {
-        from: this.account,
-      })
-      this.loading = false
-      this.newTaskCont = ''
-      this.renderTasks(this)
-    },
-
     async toggleCompleted() {
       if (this.id > 0) {
         this.loading = true
