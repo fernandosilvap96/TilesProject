@@ -159,6 +159,7 @@ export default {
       errorText: '',
       walletKey: undefined,
       transactionInfo: {},
+      transactionJsonInfo: {},
 
       successPopup: false,
       waitLoading: false,
@@ -222,15 +223,23 @@ export default {
         //   await arweave.transactions.getStatus(transaction.id)
         // )
 
-        this.transactionInfo = {
+        this.transactionJsonInfo = {
           address: await arweave.wallets.jwkToAddress(this.walletKey),
           transactionId: transaction.id,
         }
-        console.log('ID JSON' + this.transactionInfo.transactionId)
+        console.log('ID JSON: ' + this.transactionJsonInfo.transactionId)
         getStatus = setInterval(() => this.getTransactionStatus(), 60000)
+
+        console.log('contract TILES', parent.todoList)
+
+
+
+
+
       } catch (err) {
         console.log(err)
       }
+
     },
     async createBlob() {
       //transactionId
@@ -293,7 +302,7 @@ export default {
         //this.walletPopup = true
 
         //Faz upload da img
-        this.setWalletKey(this.key)
+        this.setWalletKey(this.walletKey)
       } catch (err) {
         this.walletPopup = false
         this.errorText = 'transaction error. try again'
@@ -306,6 +315,8 @@ export default {
       this.walletPopup = false
       try {
         console.log('entrou no upload img')
+
+        console.log('contract TILES', parent.todoList)
         //Chamar o POPUP "Waiting for a transaction"
         this.loading = true
         const type = this.src.type
