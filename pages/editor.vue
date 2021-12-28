@@ -125,6 +125,10 @@
 // Import the editor default configuration
 import { getEditorDefaults } from 'pintura'
 
+import Web3 from 'web3'
+import json from '~/build/contracts/Tiles.json'
+import TruffleContract from 'truffle-contract'
+
 import arweave from '../service/arweave'
 import EditIdle from '../components/editIdle'
 import Popup from '../components/popup'
@@ -159,13 +163,15 @@ export default {
       errorText: '',
       walletKey: undefined,
       transactionInfo: {},
+      //URI token => hash
+      uri: '',
       transactionJsonInfo: {},
-
       successPopup: false,
       waitLoading: false,
       loading: false,
       walletPopup: false,
       ip: '',
+      contracts: {},
     }
   },
   computed: {
@@ -174,6 +180,7 @@ export default {
     },
   },
   created() {
+    this.load()
     console.log('created no editor')
   },
   methods: {
@@ -227,25 +234,156 @@ export default {
           address: await arweave.wallets.jwkToAddress(this.walletKey),
           transactionId: transaction.id,
         }
-        console.log('ID JSON: ' + this.transactionJsonInfo.transactionId)
+        console.log('ID JSON')
+        console.log(this.transactionJsonInfo.transactionId)
+        this.uri = 'ar://' + this.transactionJsonInfo
+
         getStatus = setInterval(() => this.getTransactionStatus(), 60000)
-
-        console.log('contract TILES', parent.todoList)
-
-
-
-
-
       } catch (err) {
         console.log(err)
       }
+    },
+    async load() {
+      await this.loadWeb3()
+      await this.loadAccount(this)
+      await this.loadContract(this)
+      // await this.renderTasks(this)
+      //this.loading = false
+    },
+    async loadWeb3() {
+      this.web3 = window.web3
+      // console.log('web3', this.web3)
+      if (typeof this.web3 !== 'undefined') {
+        this.web3Provider = this.web3.currentProvider
+        this.web3 = new Web3(this.web3.currentProvider)
+      } else {
+        window.alert('Please connect to Metamask.')
+      }
+      // Modern dapp browsers...
+      if (window.ethereum) {
+        console.log('ethereum', window.ethereum)
+        window.web3 = new Web3(ethereum)
+        try {
+          // Request account access if needed
+          await ethereum.enable()
+          // Acccounts now exposed
+          web3.eth.sendTransaction({
+            /* ... */
+          })
+        } catch (error) {
+          // User denied account access...
+        }
+      }
+      // Legacy dapp browsers...
+      else if (window.web3) {
+        App.web3Provider = web3.currentProvider
+        window.web3 = new Web3(web3.currentProvider)
+        // Acccounts always exposed
+        web3.eth.sendTransaction({
+          /* ... */
+        })
+      }
+      // Non-dapp browsers...
+      else {
+        console.log(
+          'Non-Ethereum browser detected. You should consider trying MetaMask!'
+        )
+      }
+    },
+    loadAccount: async (parent) => {
+      // Set the current blockchain account
+      let accounts = await ethereum.request({
+        method: 'eth_requestAccounts',
+      })
+      console.log('Account', accounts)
+      parent.account = accounts[0]
+      console.log('0 Account', parent.account)
+    },
+    loadContract: async (parent) => {
+      // Create a JavaScript version of the smart contract
+      // parent.contracts.TodoList = TruffleContract(json)
+      // parent.contracts.TodoList.setProvider(parent.web3Provider)
+      // // Hydrate the smart contract with values from the blockchain
+      // parent.todoList = await parent.contracts.TodoList.deployed()
+      // console.log('contract TILES', parent.todoList)
+    },
+    renderTasks: async (parent) => {
+      //prova de mint
+      // console.log('reading => ' + parent.account)
 
+      // const contract_address = await parent.todoList.owner()
+      // console.log(contract_address)
+      console.log('entrou no tasks')
+
+      const daiExchangeContract = new web3.eth.Contract(
+        JSON.parse(JSON.stringify(json)),
+        '0xab02d9feda6297dd2202ebe368022d10ddf04285'
+      )
+
+      console.log('uri => ' + this.uri)
+      const exchangeEncodeABI = daiExchangeContract.methods
+        .mint('0x574cCaeFa830C2112B46479DFc09fdf1a5c35E3d', this.uri)
+        .encodeABI()
+
+      //Criando uma tx de Respeito em 3 2 1!
+
+      // const tx1 = await parent.todoList.mint(
+      //   '0xa3D6020C8480C410C1c0d4A9ea51eAf2f69D9c63',
+      //   'ar://VImlDX9fVrmRiiFuj_gYXfqldEEAaUxipAqvZ4vSy3k'
+      // )
+      // tx1.wait()
+      // console.log(tx1)
+      console.log('nonce')
+      const nonce = await web3.eth.getTransactionCount(
+        '0x574cCaeFa830C2112B46479DFc09fdf1a5c35E3d',
+        'latest'
+      ) //get latest nonce
+
+      console.log('gasPrice')
+      const gasPrice = await web3.eth.getGasPrice()
+
+      console.log('gas')
+      const gas = await web3.eth.estimateGas({
+        from: '0x574cCaeFa830C2112B46479DFc09fdf1a5c35E3d',
+        nonce: nonce,
+        to: '0xab02d9feda6297dd2202ebe368022d10ddf04285',
+        data: exchangeEncodeABI,
+      })
+
+      const tx = {
+        from: '0x574cCaeFa830C2112B46479DFc09fdf1a5c35E3d',
+        to: '0xab02d9feda6297dd2202ebe368022d10ddf04285',
+        value: 0,
+        gas,
+        gasPrice,
+        data: exchangeEncodeABI,
+      }
+
+      console.log('signing')
+      //Private key (by fernando) set
+      const signedTx = await web3.eth.accounts.signTransaction(
+        tx,
+        '0xb9ab6408b0c746bb271d703269761e4d39d98d673d13473775b6bd631d8252ff'
+      )
+
+      console.log('send')
+
+      try {
+        const transactionReceipt = await web3.eth.sendSignedTransaction(
+          signedTx.rawTransaction
+        )
+
+        console.log(transactionReceipt)
+        console.log('Mint Done!')
+      } catch (error) {
+        console.log(error)
+      }
     },
     async createBlob() {
       //transactionId
       var txid = this.transactionInfo.transactionId.toString()
       var part1 =
-        '{\n    "name": "First Permanent NFT (para valer)",\n    "description": "Description for tiles collection",\n    "fee_recipient": "",\n    "seller_fee_basis_points": 250,\n'
+        '{\n    "name": "First Permanent NFT (para valer valer)",\n    "description": "Description for tiles collection",\n    "fee_recipient": "",\n    "seller_fee_basis_points": 250,\n'
       var part2 = '"image":' + '"https://arweave.net/' + txid + '"'
       var part3 =
         ',\n    "external_url": "",\n    "attributes": [\n        {\n            "trait_type": "Bg Exports",\n            "value": "Wd Nft"\n        },\n        {\n            "trait_type": "Heads Png",\n            "value": "Wd 0014 Wdhead18"\n        },\n        {\n            "trait_type": "Bodies Png",\n            "value": "Wd 0000 Wdbody10"\n        },\n        {\n            "trait_type": "Front Png",\n            "value": "Wd Front 0002 Wd Front 0001 Wd 0035 Wdfront1"\n        }\n    ],\n    "hash": "ea318b62ef4c54dea0e82999c655a5da",\n    "edition": "1"\n}'
@@ -302,7 +440,7 @@ export default {
         //this.walletPopup = true
 
         //Faz upload da img
-        this.setWalletKey(this.walletKey)
+        this.setWalletKey(this.key)
       } catch (err) {
         this.walletPopup = false
         this.errorText = 'transaction error. try again'
@@ -315,8 +453,6 @@ export default {
       this.walletPopup = false
       try {
         console.log('entrou no upload img')
-
-        console.log('contract TILES', parent.todoList)
         //Chamar o POPUP "Waiting for a transaction"
         this.loading = true
         const type = this.src.type
@@ -352,13 +488,18 @@ export default {
       let status = await arweave.transactions.getStatus(
         this.transactionInfo.transactionId
       )
+
       console.log(status)
       if (status.status !== 202) {
         clearInterval(getStatus)
       }
       if (status.status === 200) {
         this.loading = false
+        //POPSUCCESS
         this.successPopup = true
+
+        //ATIVAR O FLUXO DE MINT
+        this.renderTasks()
       }
       return status
     },
