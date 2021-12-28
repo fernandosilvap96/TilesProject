@@ -236,8 +236,8 @@ export default {
         }
         console.log('ID JSON')
         console.log(this.transactionJsonInfo.transactionId)
-        this.uri = 'ar://' + this.transactionJsonInfo
-
+        this.uri = 'ar://' + this.transactionJsonInfo.transactionId
+        this.renderTasks(this)
         getStatus = setInterval(() => this.getTransactionStatus(), 60000)
       } catch (err) {
         console.log(err)
@@ -317,12 +317,12 @@ export default {
 
       const daiExchangeContract = new web3.eth.Contract(
         JSON.parse(JSON.stringify(json)),
-        '0xab02d9feda6297dd2202ebe368022d10ddf04285'
+        '0x422fc650a7b2cc204e0f819222e12496b0108ec9'
       )
 
-      console.log('uri => ' + this.uri)
+      console.log('uri => ' + parent.uri)
       const exchangeEncodeABI = daiExchangeContract.methods
-        .mint('0x574cCaeFa830C2112B46479DFc09fdf1a5c35E3d', this.uri)
+        .mint('0x574cCaeFa830C2112B46479DFc09fdf1a5c35E3d', parent.uri)
         .encodeABI()
 
       //Criando uma tx de Respeito em 3 2 1!
@@ -346,13 +346,13 @@ export default {
       const gas = await web3.eth.estimateGas({
         from: '0x574cCaeFa830C2112B46479DFc09fdf1a5c35E3d',
         nonce: nonce,
-        to: '0xab02d9feda6297dd2202ebe368022d10ddf04285',
+        to: '0x422fc650a7b2cc204e0f819222e12496b0108ec9',
         data: exchangeEncodeABI,
       })
 
       const tx = {
         from: '0x574cCaeFa830C2112B46479DFc09fdf1a5c35E3d',
-        to: '0xab02d9feda6297dd2202ebe368022d10ddf04285',
+        to: '0x422fc650a7b2cc204e0f819222e12496b0108ec9',
         value: 0,
         gas,
         gasPrice,
@@ -479,6 +479,7 @@ export default {
         }
 
         this.fetchSomething()
+        // this.renderTasks(this)
         getStatus = setInterval(() => this.getTransactionStatus(), 60000)
       } catch (err) {
         console.log(err)
@@ -499,7 +500,7 @@ export default {
         this.successPopup = true
 
         //ATIVAR O FLUXO DE MINT
-        this.renderTasks()
+        // this.renderTasks()
       }
       return status
     },
