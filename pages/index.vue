@@ -8,9 +8,11 @@
         <a href="/home">How it works</a>
         <a href="/home">FAQ</a>
         <a href="/home">Contacts</a>
+        <NuxtLink to="/editor">Mint one $TILE</NuxtLink>
       </div>
       <div class="main">
-        <h3>Account: {{ account }}</h3>
+        <h3>Account: {{ this.$accounts[0] }}</h3>
+
         Wallet:
         <a
           v-for="token in tokenIds"
@@ -20,6 +22,7 @@
           target="_blank"
         >
           TOKEN {{ token }} ,
+          <!-- <p v-if="token == undefined">Empty</p> -->
         </a>
         <h1 class="title">
           <span>10</span> UNIQUE <br />
@@ -75,36 +78,13 @@
 <script>
 // [] Connect to Smart Contract
 // [] Fazer as calls do Smart Contract #methods
-import Web3 from 'web3'
-import json from '~/build/contracts/Tiles.json'
-import TruffleContract from 'truffle-contract'
+
 import axios from 'axios'
 
 export default {
   data() {
     return {
-      headers: [
-        {
-          text: 'Id',
-          value: 'id',
-        },
-        {
-          text: 'Atividades',
-          value: 'content',
-        },
-        {
-          text: 'Complete',
-          value: 'complete',
-        },
-      ],
-      web3Provider: null,
-      account: null,
-      web3: null,
-      contracts: {},
       loading: true,
-      tasks: [],
-      newTaskCont: '',
-      id: 0,
       tokenIds: [],
       alltokens: [],
       ip: '',
@@ -112,11 +92,26 @@ export default {
   },
   created() {
     console.log('created')
-    this.load()
-    this.fetchSomething()
+    // this.load()
+    // this.apiOpensea()
+    this.getTokens()
   },
   methods: {
-    async fetchSomething() {
+    getTokens: async function () {
+      console.log(this.tokenIds)
+      console.log(this.$accounts)
+      try {
+        let result = await this.$contract.methods
+          .walletOfHolder(this.$accounts[0])
+          .call()
+
+        this.tokenIds = result
+      } catch (error) {
+        console.log('Verify you are connected to the right network')
+        console.log(error)
+      }
+    },
+    async apiOpensea() {
       const ip = await this.$axios.$get(
         'https://api.opensea.io/api/v1/assets?asset_contract_address=0xc2D6B32E533e7A8dA404aBb13790a5a2F606aD75&order_direction=desc&offset=0&limit=20'
       )
@@ -130,112 +125,16 @@ export default {
       // await this.loadAssets(this)
       // this.loading = false
     },
-    async loadWeb3() {
-      this.web3 = window.web3
-      // console.log('web3', this.web3)
-      if (typeof this.web3 !== 'undefined') {
-        this.web3Provider = this.web3.currentProvider
-        this.web3 = new Web3(this.web3.currentProvider)
-      } else {
-        window.alert('Please connect to Metamask.')
-      }
-      // Modern dapp browsers...
-      if (window.ethereum) {
-        console.log('ethereum', window.ethereum)
-        window.web3 = new Web3(ethereum)
-        try {
-          // Request account access if needed
-          await ethereum.enable()
-          // Acccounts now exposed
-          web3.eth.sendTransaction({
-            /* ... */
-          })
-        } catch (error) {
-          // User denied account access...
-        }
-      }
-      // Legacy dapp browsers...
-      else if (window.web3) {
-        App.web3Provider = web3.currentProvider
-        window.web3 = new Web3(web3.currentProvider)
-        // Acccounts always exposed
-        web3.eth.sendTransaction({
-          /* ... */
-        })
-      }
-      // Non-dapp browsers...
-      else {
-        console.log(
-          'Non-Ethereum browser detected. You should consider trying MetaMask!'
-        )
-      }
-    },
-    activated() {
-      // Call fetch again if last fetch more than 30 sec ago
-      // if (this.$fetchState.timestamp <= Date.now() - 30000) {
-      //   this.$fetch()
-      // }
-    },
-    loadAccount: async (parent) => {
-      // Set the current blockchain account
-      let accounts = await ethereum.request({
-        method: 'eth_requestAccounts',
-      })
-      console.log('Account', accounts)
-      parent.account = accounts[0]
-      console.log('0 Account', parent.account)
-    },
-    loadContract: async (parent) => {
-      // Create a JavaScript version of the smart contract
-      parent.contracts.TodoList = TruffleContract(json)
-      parent.contracts.TodoList.setProvider(parent.web3Provider)
-
-      // Hydrate the smart contract with values from the blockchain
-      parent.todoList = await parent.contracts.TodoList.deployed()
-      console.log('contract TILES', parent.todoList)
-    },
     render: async (parent) => {
       // Prevent double render
       if (parent.loading) {
         return
       }
-
-      // Update app loading state
-      parent.loading = true
-
-      // Render Account
-      console.log('Render Account', parent.account)
-
-      // Render Tasks
-      await parent.renderTasks(parent)
-
-      // Update loading state
-      parent.loading = false
     },
-    //Que faz as interações com o Smart Contract
-    renderTasks: async (parent) => {
-      // Load the total task count from the blockchain
-      const taskCount = await parent.todoList.maxSupply()
-      console.log('maxsupply:' + taskCount)
-
-      // Abordagem 1 => "Smart Contract"
-      // parent.alltokens = await parent.todoList.asd()
-      // console.log('alltokens:' + parent.alltokens)
-
-      parent.tokenIds = await parent.todoList.walletOfHolder(parent.account)
-      console.log('tokenIds:' + parent.tokenIds)
-    },
-    async toggleCompleted() {
-      if (this.id > 0) {
-        this.loading = true
-        const taskId = this.id
-        await this.todoList.toggleCompleted(taskId, {
-          from: this.account,
-        })
-        this.renderTasks(this)
-        this.loading = false
-      }
-    },
+  },
+  mounted() {
+    console.log('Current Block Number')
+    this.$web3.eth.getBlockNumber().then(console.log)
   },
 }
 </script>
