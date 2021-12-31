@@ -26,7 +26,7 @@ export default {
   ],
 
   // Plugins to run before rendering page: https://go.nuxtjs.dev/config-plugins
-  plugins: ['~/plugins/vue-arweave.js'],
+  plugins: ['~/plugins/vue-arweave.js', { src: '~/plugins/web3.js', mode: 'client' }],
 
   // Auto import components: https://go.nuxtjs.dev/config-components
   components: true,
