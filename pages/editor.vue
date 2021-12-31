@@ -7,7 +7,9 @@
         <a href="/home">How it works</a>
         <a href="/home">FAQ</a>
         <a href="/home">Contacts</a>
+        <NuxtLink to="/editor">Mint one $TILE</NuxtLink>
       </div>
+
       <div class="about-block">
         <popup v-if="walletPopup">
           <wallet @setWalletKey="setWalletKey" @walletClose="walletClose" />
@@ -18,41 +20,7 @@
         <popup v-if="successPopup">
           <transaction-success :transactionInfo="transactionInfo" />
         </popup>
-        <div class="mobile-history">
-          <h1 class="history-title mobile-history">CUSTOMIZE YOUR TILE</h1>
-          <div class="upload-buttons mobile-history">
-            <div class="upload-buttons-item">
-              <label>
-                <img src="~/assets/upload-image.svg" alt="" />
-                <p>image</p>
-                <input
-                  class="input-upload"
-                  ref="upload"
-                  type="file"
-                  name="file-upload"
-                  multiple=""
-                  accept="image/jpeg, image/png"
-                  @change="inputFile"
-                />
-              </label>
-            </div>
-            <div class="upload-buttons-item">
-              <label>
-                <img src="~/assets/video.svg" alt="" />
-                <p>video</p>
-                <input
-                  class="input-upload"
-                  ref="upload"
-                  type="file"
-                  name="file-upload"
-                  multiple=""
-                  accept="video/*"
-                  @change="inputFileVideo"
-                />
-              </label>
-            </div>
-          </div>
-        </div>
+
         <component
           :is="editBlockComponent"
           :src="src"
@@ -60,6 +28,7 @@
           :uploadElement="uploadElement"
           @handleInlineProcess="handleInlineProcess"
         />
+
         <div class="about-block__description">
           <div class="history">
             <h1 class="history-title desktop">CUSTOMIZE YOUR TILE</h1>
@@ -99,22 +68,41 @@
 
             <label class="element-link-label">
               <small>link</small>
-              <input type="text" />
+              <input
+                type="text"
+                name="link"
+                v-model="link"
+                @change="linkChanged"
+              />
             </label>
 
             <div v-if="errorText" class="save-buttons error-text">
               <p>{{ errorText }}</p>
             </div>
-            <div v-if="loading === false" class="save-buttons">
-              <button @click="uploadToArweave()" class="save-buttons__save">
+
+            <div
+              v-if="loading === false && $networkId === project_network_id"
+              class="save-buttons"
+            >
+              <button @click="uploadFileToArweave()" class="save-buttons__save">
                 Save and close
               </button>
               <button class="save-buttons__cancel">Cancel</button>
             </div>
+
+            <p v-if="$networkId === project_network_id" class="accuracy-text">
+              All cool. You're connected to {{ project_network_name }}
+            </p>
+            <p v-else class="error-text">
+              Ops! You're connected to the wrong network. Change to =>
+              {{ project_network_name }}
+            </p>
           </div>
         </div>
       </div>
+      <p class="accuracy-text">{{ transactionStatus }}</p>
     </div>
+
     <div class="footer">
       <p>© 2021 10 Tiles LTD.</p>
     </div>
@@ -124,13 +112,11 @@
 <script>
 // Import the editor default configuration
 import { getEditorDefaults } from 'pintura'
-
-import Web3 from 'web3'
-import json from '~/build/contracts/Tiles.json'
-import TruffleContract from 'truffle-contract'
-
+//service
 import arweave from '../service/arweave'
+// Alucino => Editor (Done)
 import EditIdle from '../components/editIdle'
+//Components
 import Popup from '../components/popup'
 import Wallet from '../components/wallet'
 import WaitTransaction from '../components/waitTransaction'
@@ -140,7 +126,9 @@ import TransactionSuccess from '../components/transactionSuccess'
 const states = {
   idle: EditIdle,
 }
+
 let getStatus
+
 export default {
   name: 'editor',
   components: {
@@ -150,28 +138,35 @@ export default {
     Popup,
     EditIdle,
   },
+
   data() {
     return {
-      editState: 'idle',
+      // Inicializa PopUps
+      walletPopup: false,
+      waitLoading: false,
+      successPopup: false,
+
+      loading: false,
       // Pass the editor default configuration options
+      editState: 'idle',
       editorDefaults: getEditorDefaults(),
       inlineResult: undefined,
       // The source image to load
       src: undefined,
-      // This will set a square crop aspect ratio
       uploadElement: 'image',
       errorText: '',
       walletKey: undefined,
       transactionInfo: {},
-      //URI token => hash
+
+      //A nossa horta
       uri: '',
       transactionJsonInfo: {},
-      successPopup: false,
-      waitLoading: false,
-      loading: false,
-      walletPopup: false,
-      ip: '',
-      contracts: {},
+      project_network_name: 'Rinkeby',
+      project_network_id: 4,
+      supply: undefined,
+      mintTxHash: '',
+      transactionStatus: 'transactionStatus',
+      link: localStorage.getItem('link'),
     }
   },
   computed: {
@@ -184,200 +179,101 @@ export default {
     console.log('created no editor')
   },
   methods: {
-    //Faz upload to Arweave
-    // => JSON
+    async uploadFileToArweave() {
+      //1 => Selecionar o arquivo
+      if (!this.src) {
+        this.errorText = 'select one image or video'
+        return false
+      }
+
+      if (this.supply == 10) {
+        this.errorText = 'There are not available Tiles anymore'
+        return false
+      }
+
+      this.transactionStatus = 'Please select your arweave wallet (json)'
+      this.walletPopup = true
+    },
+    //CREATE/UPLOAD do Json
     async fetchSomething() {
-      //O Blob precisa de comida => id da IMG
-      console.log('olha a transaction info da img')
-      console.log(this.transactionInfo.transactionId)
+      //Cria o JSON
       this.createBlob()
-      this.walletPopup = false
+      /////////////
+
       try {
-        this.loading = true
+        //Começa a preparação do Upload do JSON
+        this.transactionStatus =
+          'PREPARING METADATA. THIS CAN TAKE UP TO 15 MINUTES'
         const type = this.src.type
 
-        console.log('toBase64')
-        const imageDataUri = await this.toBase64(this.src)
+        const jsonDataUri = await this.toBase64(this.src)
 
-        console.log('Buffer')
-        const imageBuffer = Buffer.from(imageDataUri.split(',')[1], 'base64')
-
-        console.log('antes da tx')
+        const jsonBuffer = Buffer.from(jsonDataUri.split(',')[1], 'base64')
 
         const transaction = await arweave.createTransaction(
           {
-            data: imageBuffer,
+            data: jsonBuffer,
           },
           this.walletKey
         )
-        //ID (X)
-        //OWNER (X)
-        //SIGANTURE (X)
-        console.log(transaction)
-
         transaction.addTag('Content-Type', type)
 
-        const assinatura = await arweave.transactions.sign(
-          transaction,
-          this.walletKey
-        )
-        console.log(assinatura)
-        await arweave.transactions.post(transaction)
+        //Começa o Upload do JSON
+        await arweave.transactions.sign(transaction, this.walletKey)
 
-        //console.log('post response', postResponse)
-        // console.log(
-        //   'getStatus',
-        //   await arweave.transactions.getStatus(transaction.id)
-        // )
+        await arweave.transactions.post(transaction)
 
         this.transactionJsonInfo = {
           address: await arweave.wallets.jwkToAddress(this.walletKey),
           transactionId: transaction.id,
         }
-        console.log('ID JSON')
+
         console.log(this.transactionJsonInfo.transactionId)
         this.uri = 'ar://' + this.transactionJsonInfo.transactionId
-        this.renderTasks(this)
+
         getStatus = setInterval(() => this.getTransactionStatus(), 60000)
       } catch (err) {
         console.log(err)
       }
     },
     async load() {
-      await this.loadWeb3()
-      await this.loadAccount(this)
-      await this.loadContract(this)
-      // await this.renderTasks(this)
-      //this.loading = false
+      await this.getSupply()
+      /** Need more loadings? */
     },
-    async loadWeb3() {
-      this.web3 = window.web3
-      // console.log('web3', this.web3)
-      if (typeof this.web3 !== 'undefined') {
-        this.web3Provider = this.web3.currentProvider
-        this.web3 = new Web3(this.web3.currentProvider)
-      } else {
-        window.alert('Please connect to Metamask.')
-      }
-      // Modern dapp browsers...
-      if (window.ethereum) {
-        console.log('ethereum', window.ethereum)
-        window.web3 = new Web3(ethereum)
-        try {
-          // Request account access if needed
-          await ethereum.enable()
-          // Acccounts now exposed
-          web3.eth.sendTransaction({
-            /* ... */
-          })
-        } catch (error) {
-          // User denied account access...
-        }
-      }
-      // Legacy dapp browsers...
-      else if (window.web3) {
-        App.web3Provider = web3.currentProvider
-        window.web3 = new Web3(web3.currentProvider)
-        // Acccounts always exposed
-        web3.eth.sendTransaction({
-          /* ... */
+    getSupply: async function () {
+      let res = await this.$contract.methods.totalSupply().call()
+      console.log('supply abaixo')
+      console.log(res)
+      this.supply = res
+    },
+    mint: async function (callback) {
+      // let accounts = await this.$web3.eth.getAccounts();
+      // let account = accounts[0];
+
+      this.transactionStatus = 'Please Confirm the Mint Transaction'
+
+      var ret = await this.$contract.methods
+        .mint(this.$accounts[0], this.uri)
+        .send({ from: this.$accounts[0] })
+        .then(async (res) => {
+          console.log(res)
+          this.mintTxHash = res.transactionHash
         })
-      }
-      // Non-dapp browsers...
-      else {
-        console.log(
-          'Non-Ethereum browser detected. You should consider trying MetaMask!'
-        )
-      }
-    },
-    loadAccount: async (parent) => {
-      // Set the current blockchain account
-      let accounts = await ethereum.request({
-        method: 'eth_requestAccounts',
-      })
-      console.log('Account', accounts)
-      parent.account = accounts[0]
-      console.log('0 Account', parent.account)
-    },
-    loadContract: async (parent) => {
-      // Create a JavaScript version of the smart contract
-      // parent.contracts.TodoList = TruffleContract(json)
-      // parent.contracts.TodoList.setProvider(parent.web3Provider)
-      // // Hydrate the smart contract with values from the blockchain
-      // parent.todoList = await parent.contracts.TodoList.deployed()
-      // console.log('contract TILES', parent.todoList)
-    },
-    renderTasks: async (parent) => {
-      //prova de mint
-      // console.log('reading => ' + parent.account)
+        .catch(() => {
+          console.log('error')
+        })
 
-      // const contract_address = await parent.todoList.owner()
-      // console.log(contract_address)
-      console.log('entrou no tasks')
-
-      const daiExchangeContract = new web3.eth.Contract(
-        JSON.parse(JSON.stringify(json)),
-        '0x422fc650a7b2cc204e0f819222e12496b0108ec9'
-      )
-
-      console.log('uri => ' + parent.uri)
-      const exchangeEncodeABI = daiExchangeContract.methods
-        .mint('0x574cCaeFa830C2112B46479DFc09fdf1a5c35E3d', parent.uri)
-        .encodeABI()
-
-      //Criando uma tx de Respeito em 3 2 1!
-
-      // const tx1 = await parent.todoList.mint(
-      //   '0xa3D6020C8480C410C1c0d4A9ea51eAf2f69D9c63',
-      //   'ar://VImlDX9fVrmRiiFuj_gYXfqldEEAaUxipAqvZ4vSy3k'
-      // )
-      // tx1.wait()
-      // console.log(tx1)
-      console.log('nonce')
-      const nonce = await web3.eth.getTransactionCount(
-        '0x574cCaeFa830C2112B46479DFc09fdf1a5c35E3d',
-        'latest'
-      ) //get latest nonce
-
-      console.log('gasPrice')
-      const gasPrice = await web3.eth.getGasPrice()
-
-      console.log('gas')
-      const gas = await web3.eth.estimateGas({
-        from: '0x574cCaeFa830C2112B46479DFc09fdf1a5c35E3d',
-        nonce: nonce,
-        to: '0x422fc650a7b2cc204e0f819222e12496b0108ec9',
-        data: exchangeEncodeABI,
+      this.$contract.events.allEvents((error, event) => {
+        if (event != null && this.mintTxHash != null) {
+          if (event.transactionHash == mintTxHash) {
+            callback(event.returnValues.tokenId)
+          }
+        }
       })
 
-      const tx = {
-        from: '0x574cCaeFa830C2112B46479DFc09fdf1a5c35E3d',
-        to: '0x422fc650a7b2cc204e0f819222e12496b0108ec9',
-        value: 0,
-        gas,
-        gasPrice,
-        data: exchangeEncodeABI,
-      }
-
-      console.log('signing')
-      //Private key (by fernando) set
-      const signedTx = await web3.eth.accounts.signTransaction(
-        tx,
-        '0xb9ab6408b0c746bb271d703269761e4d39d98d673d13473775b6bd631d8252ff'
-      )
-
-      console.log('send')
-
-      try {
-        const transactionReceipt = await web3.eth.sendSignedTransaction(
-          signedTx.rawTransaction
-        )
-
-        console.log(transactionReceipt)
-        console.log('Mint Done!')
-      } catch (error) {
-        console.log(error)
-      }
+      this.transactionStatus = 'Minted Succesfully'
+      console.log('tokeId abaixo')
+      console.log(callback)
     },
     async createBlob() {
       //transactionId
@@ -387,15 +283,11 @@ export default {
       var part2 = '"image":' + '"https://arweave.net/' + txid + '"'
       var part3 =
         ',\n    "external_url": "",\n    "attributes": [\n        {\n            "trait_type": "Bg Exports",\n            "value": "Wd Nft"\n        },\n        {\n            "trait_type": "Heads Png",\n            "value": "Wd 0014 Wdhead18"\n        },\n        {\n            "trait_type": "Bodies Png",\n            "value": "Wd 0000 Wdbody10"\n        },\n        {\n            "trait_type": "Front Png",\n            "value": "Wd Front 0002 Wd Front 0001 Wd 0035 Wdfront1"\n        }\n    ],\n    "hash": "ea318b62ef4c54dea0e82999c655a5da",\n    "edition": "1"\n}'
+      // var part4 =
 
-      // var jsonStringified =
-      //   '{\n    "name": "First Permanent NFT",\n    "description": "Description for tiles collection",\n    "fee_recipient": "",\n    "seller_fee_basis_points": 250,\n    "image": "https://arweave.net/9GfyYUNFh2ybQ41MOzLmU-vNrfsnivIRJfigNVN8R2I",\n    "external_url": "",\n    "attributes": [\n        {\n            "trait_type": "Bg Exports",\n            "value": "Wd Nft"\n        },\n        {\n            "trait_type": "Heads Png",\n            "value": "Wd 0014 Wdhead18"\n        },\n        {\n            "trait_type": "Bodies Png",\n            "value": "Wd 0000 Wdbody10"\n        },\n        {\n            "trait_type": "Front Png",\n            "value": "Wd Front 0002 Wd Front 0001 Wd 0035 Wdfront1"\n        }\n    ],\n    "hash": "ea318b62ef4c54dea0e82999c655a5da",\n    "edition": "1"\n}'
       var jsonStringified = part1 + part2 + part3
-
       var aFileParts = [jsonStringified]
       var blob = new Blob(aFileParts, { type: 'application/json' }) // the blob
-      //this.inlineResult = URL.createObjectURL(blob)
-      //console.log('this.inlineResult ', this.inlineResult)
       this.src = blob
       this.uploadElement = 'json'
     },
@@ -420,87 +312,64 @@ export default {
       this.src = event.target.files[0]
       this.uploadElement = 'video'
     },
-    inputJson(event) {
-      if (!event.target.files.length) {
-        return
-      }
-      this.src = event.target.files[0]
-      this.uploadElement = 'json'
-    },
-    async uploadToArweave() {
-      this.errorText = ''
-      console.log(this.src)
-      if (!this.src) {
-        this.errorText = 'input image or video'
-        return false
-      }
-      //Se tiver algo no src
-      try {
-        //Chamar o POPUP "It's time for permanence"
-        //this.walletPopup = true
-
-        //Faz upload da img
-        this.setWalletKey(this.key)
-      } catch (err) {
-        this.walletPopup = false
-        this.errorText = 'transaction error. try again'
-      }
+    //[] YOU CAN DELETE THE FUNCTION BELOW
+    linkChanged() {
+      console.log(this.link)
     },
     async setWalletKey(key) {
-      //Faz upload to Arweave
-      // => IMAGEM
       this.walletKey = key
       this.walletPopup = false
       try {
-        console.log('entrou no upload img')
         //Chamar o POPUP "Waiting for a transaction"
+        this.transactionStatus = 'PREPARING UPLOADING FILE'
         this.loading = true
         const type = this.src.type
 
-        //1) Blob => base de um file
-        //2) File =>
-        const imageDataUri = await this.toBase64(this.src)
+        //Começa a preparação do Upload do File
+        const fileDataUri = await this.toBase64(this.src)
 
-        const imageBuffer = Buffer.from(imageDataUri.split(',')[1], 'base64')
+        const fileBuffer = Buffer.from(fileDataUri.split(',')[1], 'base64')
         const transaction = await arweave.createTransaction(
           {
-            data: imageBuffer,
+            data: fileBuffer,
           },
           key
         )
         transaction.addTag('Content-Type', type)
+
+        //Começa o Upload do File
+        this.transactionStatus = 'UPLOADING STARTED. PLEASE AWAIT'
         await arweave.transactions.sign(transaction, key)
         await arweave.transactions.post(transaction)
-        // console.log("post response", postResponse);
-        // console.log('getStatus',await arweave.transactions.getStatus(transaction.id))
+
+        //Seta o valor de transactionInfo
         this.transactionInfo = {
           address: await arweave.wallets.jwkToAddress(key),
           transactionId: transaction.id,
         }
 
+        //Chama quem fará o CREATE/UPLOAD do Json
         this.fetchSomething()
-        // this.renderTasks(this)
-        getStatus = setInterval(() => this.getTransactionStatus(), 60000)
+        //getStatus = setInterval(() => this.getTransactionStatus(), 60000)
       } catch (err) {
         console.log(err)
       }
     },
     async getTransactionStatus() {
       let status = await arweave.transactions.getStatus(
-        this.transactionInfo.transactionId
+        this.transactionJsonInfo.transactionId
       )
 
-      console.log(status)
       if (status.status !== 202) {
         clearInterval(getStatus)
       }
       if (status.status === 200) {
+        //DO JSON
         this.loading = false
-        //POPSUCCESS
         this.successPopup = true
 
         //ATIVAR O FLUXO DE MINT
-        // this.renderTasks()
+        this.mint()
       }
       return status
     },
@@ -536,6 +405,11 @@ export default {
     max-width: 1200px;
     width: 100%;
     margin: 0 auto;
+
+    p.accuracy-text {
+      color: rgb(123, 255, 0);
+    }
+
     .about-block {
       position: relative;
       display: grid;
@@ -594,6 +468,14 @@ export default {
           }
         }
       }
+      p.accuracy-text {
+        color: rgb(123, 255, 0);
+      }
+
+      p.error-text {
+        color: rgb(238, 3, 3);
+      }
+
       @media screen and (max-width: 1024px) {
         gap: 50px;
       }
@@ -760,6 +642,11 @@ input[type='file'] {
 .error-text {
   p {
     color: orangered;
+  }
+}
+.accuracy-text {
+  p {
+    color: rgb(123, 255, 0);
   }
 }
 .mobile-history {
