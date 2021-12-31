@@ -1,12 +1,17 @@
 <template>
   <div class="transaction-load">
-
     <div class="transaction-load--content">
-      <h2 class="transaction-load--title">WAITING FOR A TRANSACTION TO BE CONFIRMED</h2>
+      <h2 class="transaction-load--title">
+        WAITING FOR A TRANSACTION TO BE CONFIRMED
+      </h2>
       <p>This usually takes up to 15 minutes</p>
-      <a :href="`https://viewblock.io/arweave/tx/${transactionInfo.transactionId}`" target='_blank' class='check-block-ex'>Check Block Explorer</a>
-      <p>TX ID: {{transactionInfo.transactionId}}</p>
-
+      <a
+        :href="`https://viewblock.io/arweave/tx/${transactionInfo.transactionId}`"
+        target="_blank"
+        class="check-block-ex"
+        >Check Block Explorer</a
+      >
+      <p>TX ID: {{ transactionInfo.transactionId }}</p>
     </div>
   </div>
 </template>
@@ -14,7 +19,7 @@
 <script>
 export default {
   name: 'waitTransaction',
-  props: ['transactionInfo']
+  props: ['transactionInfo'],
 }
 </script>
 
@@ -23,7 +28,7 @@ export default {
 .transaction-load {
   display: flex;
   flex-direction: column;
-  justify-content:center;
+  justify-content: center;
   height: 100%;
 
   &--title {
@@ -56,6 +61,5 @@ export default {
     }
   }
 }
-
 </style>
 
