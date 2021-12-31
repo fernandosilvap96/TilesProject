@@ -1,7 +1,9 @@
 <template>
   <div class="wallet">
     <div>
-      <p @click='$emit("walletClose")' class='return-back'><img src='~/assets/arrow-left.svg' alt=''> Return to editor</p>
+      <p @click="$emit('walletClose')" class="return-back">
+        <img src="~/assets/arrow-left.svg" alt="" /> Return to editor
+      </p>
     </div>
 
     <div class="wallet--content">
@@ -37,11 +39,14 @@ export default {
       if (!event.target.files.length) {
         return
       }
+      //Se tiver arquivo (img?) continua aqui
+      //Carrega (Load) => Wallet (json)
       await this.onReaderLoad(event.target.files[0])
         .then(async (res) => {
           try {
             await arweave.wallets.jwkToAddress(JSON.parse(res))
             this.$emit('setWalletKey', JSON.parse(res))
+            console.log('emit (no component)=> setWalletKey')
           } catch (err) {
             this.error = true
           }
