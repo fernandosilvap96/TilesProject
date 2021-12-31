@@ -1,11 +1,15 @@
 <template>
   <div class="transaction-load">
-
     <div class="transaction-load--content">
-      <h2 class="transaction-load--title">SUCCESS</h2>
-      <a :href="`https://viewblock.io/arweave/tx/${transactionInfo.transactionId}`" target='_blank' class='check-block-ex'>Check Block Explorer</a>
-      <p>TX ID: {{transactionInfo.transactionId}}</p>
-
+      <h2 class="transaction-load--title">IT IS TIME TO MINT!</h2>
+      <!-- <a :href="`https://viewblock.io/arweave/tx/${transactionInfo.transactionId}`" target='_blank' class='check-block-ex'>Check Block Explorer</a> -->
+      <a
+        :href="'https://testnets.opensea.io/collection/tiles-ggxvc3qcp1'"
+        target="_blank"
+        class="check-block-ex"
+        >Check OpenSea</a
+      >
+      <p>TX ID: {{ transactionInfo.transactionId }}</p>
     </div>
   </div>
 </template>
@@ -13,7 +17,7 @@
 <script>
 export default {
   name: 'transaction-success',
-  props: ['transactionInfo']
+  props: ['transactionInfo'],
 }
 </script>
 
@@ -22,7 +26,7 @@ export default {
 .transaction-load {
   display: flex;
   flex-direction: column;
-  justify-content:center;
+  justify-content: center;
   height: 100%;
 
   &--title {
@@ -55,6 +59,5 @@ export default {
     }
   }
 }
-
 </style>
 
