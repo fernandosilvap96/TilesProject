@@ -20,6 +20,43 @@
         <popup v-if="successPopup">
           <transaction-success :transactionInfo="transactionInfo" />
         </popup>
+        
+         <!-- Mobile side -->
+        <div class="mobile-history">
+          <h1 class="history-title mobile-history">CUSTOMIZE YOUR TILE</h1>
+          <div class="upload-buttons mobile-history">
+            <div class="upload-buttons-item">
+              <label>
+                <img src="~/assets/upload-image.svg" alt="" />
+                <p>image</p>
+                <input
+                  class="input-upload"
+                  ref="upload"
+                  type="file"
+                  name="file-upload"
+                  multiple=""
+                  accept="image/jpeg, image/png"
+                  @change="inputFile"
+                />
+              </label>
+            </div>
+            <div class="upload-buttons-item">
+              <label>
+                <img src="~/assets/video.svg" alt="" />
+                <p>video</p>
+                <input
+                  class="input-upload"
+                  ref="upload"
+                  type="file"
+                  name="file-upload"
+                  multiple=""
+                  accept="video/*"
+                  @change="inputFileVideo"
+                />
+              </label>
+            </div>
+          </div>
+        </div>
 
         <component
           :is="editBlockComponent"
